@@ -1,0 +1,14 @@
+{
+  "name": "@actionledger/core",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p ."
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
+}
