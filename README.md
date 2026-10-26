@@ -12,7 +12,7 @@ Inspired by [OpenAI Agents SDK issue #5409](https://github.com/openai/openai-age
 
 The new **Reliability lab** runs eight isolated multi-process experiments directly from the dashboard. Start a suite, watch durable progress, select a scenario, inspect actual state transitions and provider receipt IDs, compare naive retry with the ledger policy, download JSON evidence, and verify its SHA-256 in your browser. Saved runs survive API restarts.
 
-The runner uses a separate payment-provider process and independent disposable SQLite stores. It cannot access the operator's normal action ledger. Its synthetic fixture approvals apply only to isolated simulated payments. The lab's fault-capable provider is separate from the normal provider service.
+The runner uses a separate payment-provider process and independent disposable SQLite stores. It does not open or modify the operator's normal action records; this is process/storage separation, not an OS sandbox. Its synthetic fixture approvals apply only to isolated simulated payments. The lab's fault-capable provider is separate from the normal provider service.
 
 Run the same experiments from a terminal:
 
