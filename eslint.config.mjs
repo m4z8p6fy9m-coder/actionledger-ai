@@ -5,6 +5,9 @@ export default ts.config(
   {
     ignores: [
       "**/dist/**",
+      "**/.venv/**",
+      "**/__pycache__/**",
+      "**/.ruff_cache/**",
       "**/node_modules/**",
       "work/**",
       "outputs/**",

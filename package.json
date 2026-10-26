@@ -1,6 +1,6 @@
 {
   "name": "actionledger-ai",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "Durable action execution and conservative recovery for autonomous agents",
   "packageManager": "pnpm@11.25.0",
@@ -20,7 +20,12 @@
     "start:headless": "node scripts/dev.mjs --production --headless",
     "check": "pnpm typecheck && pnpm lint && pnpm exec prettier --check . && pnpm test && pnpm build",
     "lab": "pnpm --filter @actionledger/core build && node --import tsx scripts/lab.mjs",
-    "evidence:verify": "pnpm --filter @actionledger/core build && node scripts/verify-evidence.mjs"
+    "evidence:verify": "pnpm --filter @actionledger/core build && node scripts/verify-evidence.mjs",
+    "python:setup": "uv sync --project examples/openai-agents-python --frozen",
+    "demo:python": "pnpm --filter @actionledger/core build && node --import tsx scripts/python-repro.mjs",
+    "faults": "pnpm --filter @actionledger/core build && node scripts/faults.mjs",
+    "lint:python": "uv run --frozen --offline --project examples/openai-agents-python ruff check examples/openai-agents-python && uv run --frozen --offline --project examples/openai-agents-python ruff format --check examples/openai-agents-python",
+    "test:python": "uv run --frozen --offline --project examples/openai-agents-python python -m unittest discover -s examples/openai-agents-python/tests"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

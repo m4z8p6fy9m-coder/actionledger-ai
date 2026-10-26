@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0 — 2026-10-26
+
+- Add an optional pinned Python Agents SDK regression with real Runner/RunState approval persistence, process termination, and five offline scenarios.
+- Add seeded fault campaigns, bounded delta debugging, portable counterexample recipes, and single-removal minimality checks.
+- Add 11 fault-finder tests, 7 Python adapter tests, and Windows/Linux Python CI jobs.
+- Add a maintainer brief separating SDK checkpoint recovery from external action uncertainty.
+- Refresh repository presentation with independent branding and reproducibility links.
+
 ## 0.4.0 — 2026-10-26
 
 - Add an interactive Reliability lab with eight real multi-process failure experiments, live durable progress and persisted run history.

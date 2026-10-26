@@ -1,5 +1,11 @@
 # ActionLedger AI
 
+![ActionLedger AI — durable intent, conservative recovery](docs/images/actionledger-header.svg)
+
+[![Reliability CI](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-c6ee9f?labelColor=18271d)](LICENSE) [![Node 24+](https://img.shields.io/badge/node-24%2B-c6ee9f?labelColor=18271d)](https://nodejs.org/)
+
+[Get started](#quick-start) · [Maintainer brief](docs/MAINTAINER-BRIEF.md) · [Architecture](docs/ARCHITECTURE.md) · [Releases](https://github.com/m4z8p6fy9m-coder/actionledger-ai/releases)
+
 **Durable intent. Conservative recovery.** A fully local control plane for autonomous agent actions, built with TypeScript, Node.js, Fastify, React, Vite, Tailwind CSS, SQLite, Zod, and Vitest in a pnpm monorepo.
 
 Independent open-source project. Not affiliated with, endorsed by, or maintained by OpenAI.
@@ -8,7 +14,11 @@ Inspired by [OpenAI Agents SDK issue #5409](https://github.com/openai/openai-age
 
 ![Reliability lab running locally](docs/images/reliability-lab.png)
 
-## Version 0.4: inspect the failure window
+## SDK regression and minimized counterexamples
+
+An optional [Python integration](examples/openai-agents-python/README.md) exercises the real Agents SDK 0.24.0 with persisted approvals, RunState restoration, real process exits, and five asserted payment outcomes. It uses a local deterministic model and no API key. A seeded [fault finder](docs/FAULT-FINDER.md) generates calibrated crash-gap cases and reduces observed invariant violations to portable recipes. See the [maintainer brief](docs/MAINTAINER-BRIEF.md) for reproducible commands and the exact limits.
+
+## Reliability lab: inspect the failure window
 
 The new **Reliability lab** runs eight isolated multi-process experiments directly from the dashboard. Start a suite, watch durable progress, select a scenario, inspect actual state transitions and provider receipt IDs, compare naive retry with the ledger policy, download JSON evidence, and verify its SHA-256 in your browser. Saved runs survive API restarts.
 

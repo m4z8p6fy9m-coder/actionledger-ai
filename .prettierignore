@@ -4,3 +4,8 @@ data
 work
 outputs
 pnpm-lock.yaml
+
+.venv
+__pycache__
+.ruff_cache
+uv.lock

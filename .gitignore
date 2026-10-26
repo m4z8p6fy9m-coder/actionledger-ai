@@ -14,3 +14,8 @@ outputs/
 *.sqlite-shm
 agent-token.txt
 secrets.json
+
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
