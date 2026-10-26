@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title desc">
+<title id="title">ActionLedger AI</title><desc id="desc">Durable intent. Conservative recovery. A local reliability lab for autonomous agent actions.</desc>
+<rect width="1280" height="360" rx="18" fill="#101714"/>
+<g stroke="#283a31" fill="none"><path d="M840 0v360M1000 0v360M1160 0v360M800 100h480M800 260h480"/><circle cx="1000" cy="180" r="88"/><circle cx="1000" cy="180" r="120"/></g>
+<rect x="64" y="52" width="170" height="30" rx="15" fill="#23382b"/><text x="149" y="72" text-anchor="middle" fill="#c6ee9f" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">LOCAL · OPEN SOURCE</text>
+<text x="64" y="153" fill="#f2f5ef" font-family="Arial,sans-serif" font-weight="700" font-size="61" letter-spacing="-2">ActionLedger AI</text>
+<text x="66" y="201" fill="#c6ee9f" font-family="Arial,sans-serif" font-size="25">Durable intent. Conservative recovery.</text>
+<text x="66" y="258" fill="#9faea4" font-family="Arial,sans-serif" font-size="18">Inspect the crash window. Preserve the decision. Trace the outcome.</text>
+<text x="66" y="302" fill="#75877c" font-family="Arial,sans-serif" font-size="13">Independent project · No API key · No cloud services</text>
+<rect x="932" y="112" width="136" height="136" rx="32" fill="#c6ee9f"/><path d="m964 180 23 23 49-49" fill="none" stroke="#18271d" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
