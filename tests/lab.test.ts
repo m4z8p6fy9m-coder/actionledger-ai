@@ -36,10 +36,13 @@ const request = (
     ...(payload === undefined ? {} : { payload }),
   });
 async function waitRun(id: string) {
-  for (let i = 0; i < 500; i++) {
-    const run = (await request("GET", "/api/lab/runs/" + id)).json<LabRun>();
+  // Keep two consecutive suites below the API's 300 requests/minute limit.
+  for (let i = 0; i < 125; i++) {
+    const response = await request("GET", "/api/lab/runs/" + id);
+    expect(response.statusCode).toBe(200);
+    const run = response.json<LabRun>();
     if (run.status !== "RUNNING") return run;
-    await new Promise((r) => setTimeout(r, 25));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error("Laboratory did not finish");
 }

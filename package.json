@@ -11,9 +11,9 @@
     "dev": "node scripts/dev.mjs",
     "start": "node scripts/dev.mjs --production",
     "test": "pnpm --filter @actionledger/core build && vitest run",
-    "typecheck": "pnpm --filter @actionledger/core build && tsc --noEmit -p packages/core && tsc --noEmit -p apps/provider && tsc --noEmit -p apps/server && tsc --noEmit -p apps/web",
+    "typecheck": "pnpm --filter @actionledger/core build && tsc --noEmit -p packages/core && tsc --noEmit -p apps/provider && tsc --noEmit -p apps/server && tsc --noEmit -p apps/web && tsc --noEmit -p packages/runtime && tsc --noEmit -p packages/runtime/tsconfig.test.json",
     "lint": "eslint . --max-warnings 0",
-    "build": "pnpm --filter @actionledger/core build && pnpm --filter @actionledger/provider build && pnpm --filter @actionledger/server build && pnpm --filter @actionledger/web build",
+    "build": "pnpm --filter @actionledger/core build && pnpm --filter @actionledger/runtime build && pnpm --filter @actionledger/provider build && pnpm --filter @actionledger/server build && pnpm --filter @actionledger/web build",
     "format": "prettier --write .",
     "demo:reliability": "pnpm --filter @actionledger/core build && node --import tsx scripts/reproduce.mjs",
     "dev:headless": "node scripts/dev.mjs --headless",
@@ -25,7 +25,14 @@
     "demo:python": "pnpm --filter @actionledger/core build && node --import tsx scripts/python-repro.mjs",
     "faults": "pnpm --filter @actionledger/core build && node scripts/faults.mjs",
     "lint:python": "uv run --frozen --offline --project examples/openai-agents-python ruff check examples/openai-agents-python && uv run --frozen --offline --project examples/openai-agents-python ruff format --check examples/openai-agents-python",
-    "test:python": "uv run --frozen --offline --project examples/openai-agents-python python -m unittest discover -s examples/openai-agents-python/tests"
+    "test:python": "uv run --frozen --offline --project examples/openai-agents-python python -m unittest discover -s examples/openai-agents-python/tests",
+    "runtime": "node packages/runtime/dist/cli.js",
+    "runtime:dev": "node --import tsx packages/runtime/src/cli.ts",
+    "test:postgres": "vitest run packages/runtime/test/postgres.test.ts",
+    "typecheck:python": "uv run --frozen --offline --project examples/openai-agents-python mypy --strict examples/openai-agents-python/runtime_client.py examples/openai-agents-python/runtime_tool.py",
+    "test:chaos": "node --import tsx packages/runtime/test/chaos-stresstest.ts",
+    "demo:multi-agent": "node --import tsx packages/runtime/test/multi-agent-proof.ts",
+    "bench:guard": "node --import tsx packages/runtime/test/multi-agent-benchmark.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

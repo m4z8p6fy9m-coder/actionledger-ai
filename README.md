@@ -6,9 +6,9 @@
 
 ### Durable intent. Conservative recovery.
 
-A local reliability lab for autonomous agent actions.
+An independent, local-first reliability framework for autonomous agent actions.
 
-[Get started](#quick-start) · [Read the evidence](docs/MAINTAINER-BRIEF.md) · [Architecture](docs/ARCHITECTURE.md) · [Releases](https://github.com/m4z8p6fy9m-coder/actionledger-ai/releases)
+[Project presentation](docs/PROJECT-PRESENTATION.md) · [Chaos evidence report](docs/evidence/chaos-stresstest-report.md) · [Get started](#quick-start) · [Enterprise architecture](#enterprise-architecture) · [Maintainer brief](docs/MAINTAINER-BRIEF.md) · [Releases](https://github.com/m4z8p6fy9m-coder/actionledger-ai/releases)
 
 [![Reliability](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml)
 [![MIT](https://img.shields.io/badge/License-MIT-313b34?labelColor=181d19)](LICENSE)
@@ -21,6 +21,28 @@ An agent executes a payment. The provider commits it. The agent crashes before s
 **ActionLedger makes that uncertainty explicit.** It persists business intent and human decisions independently of agent run state, returns recorded success, and blocks unsafe replay.
 
 Inspired by [OpenAI Agents SDK issue #5409](https://github.com/openai/openai-agents-python/issues/5409). Independent open source; not affiliated with, endorsed by, or maintained by OpenAI.
+
+## Multi-Agent Defensive Guard: Fencing Agent Race Conditions
+
+When multiple agent hosts share the same ActionLedger runtime database, the optional MCP guard can serialize requests assigned to the same host-defined collision group. For each host-provisioned binding it computes `h = SHA-256(canonical({version: 1, promptHash, assetId}))`. A database uniqueness constraint admits one intent owner per `h`; a competing different intent receives `423 AgentCollisionLock` and a persistent `LOCKED` status. The agent cannot choose its own identity or collision hash through the MCP tool call.
+
+An owner must reach verified `SUCCEEDED` and the configured minimum window must pass before a different intent may acquire the lock. An interrupted or UNKNOWN owner stays locked, even beyond the window. The blocked agent is never automatically invoked; a later explicit invocation can proceed only after those conditions are met. This prevents overlapping guarded dispatches for identical hashes, not sequential duplicate effects.
+
+This is an exact comparison of the host-supplied `(promptHash, assetId)` pair, not a canonical-intent fingerprint, resource lock, vector embedding or semantic-equivalence detector. Different prompt hashes for the same asset will not collide. The lock key has no built-in tenant ID: use isolated databases or unambiguously tenant-qualified asset IDs, and do not treat that naming convention as full tenant isolation. Unguarded gateways, direct calls made before a collision is recorded, separate databases and external actors are outside its protection. All participating hosts must enforce the guard and provision consistent identities and hashes. It does not guarantee exactly-once execution or establish a product affiliation with OpenAI or Anthropic. See the [multi-agent experiment and benchmark](docs/MULTI-AGENT-EVIDENCE.md) and [runtime guidance](docs/ENTERPRISE-RUNTIME.md#multi-agent-guard) for reproducible checks, configuration and limitations.
+
+## Resilience & Security Matrix
+
+**Evidence, not a production certification:** the [PostgreSQL chaos stress-test report](docs/evidence/chaos-stresstest-report.md) records **24 / 24 simulated actions** with one payment and one POST each, zero observed duplicates, and all 24 uncertain outcomes held as `UNKNOWN`. PostgreSQL sessions were deliberately terminated; the Stripe API was a local mock.
+
+| Invariant or boundary      | Mechanism                                                                                 | Evidence and limit                                                                                      |
+| -------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Uncertain external effects | Never automatically re-dispatch UNKNOWN runtime actions; reconcile using reads            | 24 / 24 actions remained UNKNOWN in the recorded fault run                                              |
+| Concurrent ownership       | Transactional claims and monotonic fencing reject stale checkpoints                       | PostgreSQL integration test; external effects still depend on provider behavior                         |
+| Mutated MCP payload        | Compare supplied parameters with the host-registered intent; persist a freeze on mismatch | MCP tool reports 403 MutatedPayload; an already dispatched effect cannot be undone                      |
+| Intent authenticity        | HMAC-SHA256 verifies causal manifest intents at startup                                   | Legacy non-causal intents may remain unsigned; the HMAC does not protect a compromised host or database |
+| External idempotency       | Stable connector-scoped keys map from the host's causal fingerprint                       | The REST provider must enforce the key; Stripe retention and lookup limitations still apply             |
+
+The recorded chaos experiment exercises selected fault schedules. It is not a mathematical proof, a real Stripe payment test, or a guarantee of exactly-once external execution.
 
 ## Quick start
 
@@ -49,7 +71,19 @@ The dashboard combines an action registry, explicit approval queue, audit trail,
 
 The separate **Reliability lab** runs isolated experiments, persists their results, exports evidence, and verifies report fingerprints. Fixture approvals apply only to disposable simulated payments. All payments are simulated.
 
+## Enterprise Architecture
+
+The optional runtime connects host-provisioned, immutable intents to external tools through the official Model Context Protocol SDK. A separate operator approves each action; the agent invokes only granted intent IDs. If an agent supplies an input or operation that differs from the registered intent, the MCP gateway returns a structured `403 MutatedPayload`, persists a freeze and blocks subsequent dispatch. No automatic unfreeze is provided.
+
+For causal manifest intents, the host signs the complete intent with HMAC-SHA256 and the runtime verifies it at manifest load. This authenticates the host-provided intent; the gateway's payload comparison and freeze are separate runtime checks, not HMAC verification on every tool call. Existing non-causal intents can remain unsigned. A versioned fingerprint derived from prompt hash, state vector and intent ID maps to a connector-scoped provider key; changing an ID or causal state changes the fingerprint.
+
+The runtime persists approvals, claims, fences and outcomes in SQLite or PostgreSQL. A recovery loop performs provider reads and records only verified evidence; UNKNOWN never causes automatic re-execution. Stripe and generic REST are optional connectors. The REST provider must enforce idempotency itself; a header alone does not establish that guarantee. The existing dashboard uses a separate SQLite ledger and does not automatically display or migrate enterprise runtime records.
+
+See the [Enterprise Runtime guide](docs/ENTERPRISE-RUNTIME.md) for setup, threat boundaries and operational limitations. The runtime is an experimental foundation; live Stripe, Docker deployment and independent security assessment are not established by the recorded local tests.
+
 ## The recovery contract
+
+The table below describes the original local dashboard engine; the optional enterprise runtime uses read-only reconciliation for UNKNOWN and never automatically re-dispatches it.
 
 Local database transactions cannot guarantee exactly-once external execution. There is no atomic commit spanning the ledger and payment provider.
 
@@ -114,7 +148,7 @@ The finder combines known crash-gap templates with seeded command noise. It uses
 
 ### Verified baseline
 
-**106 TypeScript tests · 7 Python adapter tests · 5 SDK scenarios.**
+**Historical release baseline: 106 TypeScript tests · 7 Python adapter tests · 5 SDK scenarios.**
 
 Application verification and Python regression passed on [Windows and Ubuntu](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/runs/40355953336). Typecheck, lint, formatting, and production build passed. A separate state-machine suite exercises 1,280 seeded commands. These are bounded test observations, not a production certification.
 
@@ -159,7 +193,7 @@ Stop development services before production mode; they share backend ports. Runt
 
 ## Scope
 
-A local reference implementation with one simulated payment action, explicit approval, and manual conservative recovery. It does not provide real payment adapters, provider-specific reconciliation, multi-user identity, a distributed queue, or tamper-proof audit storage.
+The original dashboard is a local reference implementation with a simulated payment action and explicit approval. The separate experimental runtime adds opt-in Stripe and REST connectors and provider-specific read-only reconciliation. Neither component provides production multi-user identity, a distributed queue, or tamper-proof audit storage. The Stripe connector has not been validated here against a real Stripe account.
 
 Optional headless mode separates agent and operator credentials and disables browser credential bootstrap. It does not isolate code that can read host files or reach another operator service. Reviewer names provide attribution, not individual authenticated identities.
 

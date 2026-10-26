@@ -21,6 +21,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      - run: pnpm demo:multi-agent
       - run: pnpm demo:reliability
       - run: pnpm lab --seed 5409 --output laboratory-evidence.json
       - run: pnpm evidence:verify laboratory-evidence.json
@@ -49,5 +50,57 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm python:setup
       - run: pnpm lint:python
+      - run: pnpm typecheck:python
       - run: pnpm test:python
       - run: pnpm demo:python
+  postgres-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: actionledger
+          POSTGRES_PASSWORD: ci_disposable_password
+          POSTGRES_DB: actionledger
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U actionledger -d actionledger"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://actionledger:ci_disposable_password@127.0.0.1:5432/actionledger
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:postgres
+      - run: pnpm demo:multi-agent
+        env:
+          ACTIONLEDGER_PROOF_DISPOSABLE: "YES"
+      - run: pnpm test:chaos
+        env:
+          CHAOS_DISPOSABLE: "YES"
+  compose-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/init-runtime-env.mjs
+      - run: docker compose --env-file deploy/.env up -d --build --wait
+      - run: node scripts/compose-smoke.mjs
+      - if: always()
+        run: docker compose --env-file deploy/.env down --volumes

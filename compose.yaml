@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: actionledger
+      POSTGRES_DB: actionledger
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate deploy/.env first}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U actionledger -d actionledger"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  gateway:
+    build:
+      context: .
+      target: gateway
+    environment:
+      DATABASE_URL: postgresql://actionledger:${POSTGRES_PASSWORD:?Generate credentials}@postgres:5432/actionledger
+      RUNTIME_BIND: 0.0.0.0
+      RUNTIME_PORT: "4312"
+      RUNTIME_OPERATOR_TOKEN: ${RUNTIME_OPERATOR_TOKEN:?Generate credentials}
+      RUNTIME_AGENT_TOKEN: ${RUNTIME_AGENT_TOKEN:?Generate credentials}
+      PROVIDER_TOKEN: ${PROVIDER_TOKEN:?Generate credentials}
+    ports:
+      - "127.0.0.1:4312:4312"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4312/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    stop_grace_period: 30s
+    restart: unless-stopped
+  provider:
+    build:
+      context: .
+      target: provider
+    # Shared loopback namespace; provider stays private and retains loopback host checks.
+    network_mode: service:gateway
+    environment:
+      PROVIDER_TOKEN: ${PROVIDER_TOKEN:?Generate credentials}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4311/health',{headers:{authorization:'Bearer '+process.env.PROVIDER_TOKEN}}).then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - provider-data:/data
+    depends_on:
+      gateway:
+        condition: service_started
+    restart: unless-stopped
+volumes:
+  postgres-data:
+  provider-data:

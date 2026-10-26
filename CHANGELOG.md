@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Add signed causal fingerprints, persistent provider-key mappings, MCP mutation freezes and a conservative generic REST connector.
+- Add an opt-in local PostgreSQL and mock-Stripe fault-injection stress script.
+
+- Add an optional MCP gateway, durable fenced runtime and read-only reconciliation for host-provisioned intents.
+- Add a scoped Stripe connector with signed webhook verification and conservative UNKNOWN handling.
+- Add PostgreSQL support, optional Compose configuration, Python result checkpoint integration and crash tests.
+
 ## 0.5.0 — 2026-10-26
 
 - Add an optional pinned Python Agents SDK regression with real Runner/RunState approval persistence, process termination, and five offline scenarios.

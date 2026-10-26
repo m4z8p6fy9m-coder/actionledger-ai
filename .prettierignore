@@ -9,3 +9,5 @@ pnpm-lock.yaml
 __pycache__
 .ruff_cache
 uv.lock
+
+.mypy_cache/

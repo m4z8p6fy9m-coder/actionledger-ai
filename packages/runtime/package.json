@@ -1,0 +1,23 @@
+{
+  "name": "@actionledger/runtime",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p ."
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "stripe": "23.0.1",
+    "pg": "8.23.1",
+    "fastify": "^5.12.7",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
