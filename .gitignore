@@ -1,0 +1,16 @@
+node_modules/
+dist/
+data/
+coverage/
+work/
+outputs/
+*.log
+.env
+
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+agent-token.txt
+secrets.json

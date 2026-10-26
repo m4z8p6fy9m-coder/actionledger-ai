@@ -1,0 +1,36 @@
+{
+  "name": "actionledger-ai",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Durable action execution and conservative recovery for autonomous agents",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/dev.mjs --production",
+    "test": "pnpm --filter @actionledger/core build && vitest run",
+    "typecheck": "pnpm --filter @actionledger/core build && tsc --noEmit -p packages/core && tsc --noEmit -p apps/provider && tsc --noEmit -p apps/server && tsc --noEmit -p apps/web",
+    "lint": "eslint . --max-warnings 0",
+    "build": "pnpm --filter @actionledger/core build && pnpm --filter @actionledger/provider build && pnpm --filter @actionledger/server build && pnpm --filter @actionledger/web build",
+    "format": "prettier --write .",
+    "demo:reliability": "pnpm --filter @actionledger/core build && node --import tsx scripts/reproduce.mjs",
+    "dev:headless": "node scripts/dev.mjs --headless",
+    "start:headless": "node scripts/dev.mjs --production --headless",
+    "check": "pnpm typecheck && pnpm lint && pnpm exec prettier --check . && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@openai/agents": "^0.21.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.39.0",
+    "globals": "^16.4.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^3.2.4",
+    "zod": "^4.6.7"
+  }
+}
