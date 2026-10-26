@@ -1,6 +1,6 @@
 {
   "name": "actionledger-ai",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Durable action execution and conservative recovery for autonomous agents",
   "packageManager": "pnpm@11.25.0",
@@ -18,7 +18,9 @@
     "demo:reliability": "pnpm --filter @actionledger/core build && node --import tsx scripts/reproduce.mjs",
     "dev:headless": "node scripts/dev.mjs --headless",
     "start:headless": "node scripts/dev.mjs --production --headless",
-    "check": "pnpm typecheck && pnpm lint && pnpm exec prettier --check . && pnpm test && pnpm build"
+    "check": "pnpm typecheck && pnpm lint && pnpm exec prettier --check . && pnpm test && pnpm build",
+    "lab": "pnpm --filter @actionledger/core build && node --import tsx scripts/lab.mjs",
+    "evidence:verify": "pnpm --filter @actionledger/core build && node scripts/verify-evidence.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

@@ -6,7 +6,24 @@ Independent open-source project. Not affiliated with, endorsed by, or maintained
 
 Inspired by [OpenAI Agents SDK issue #5409](https://github.com/openai/openai-agents-python/issues/5409): a tool can execute an approved external action, crash before storing its result, and execute it again on resume. ActionLedger persists logical intent, human decisions, worker ownership, and external evidence independently of agent run state.
 
-## Version 0.3: reproducible reliability and scoped agent access
+![Reliability lab running locally](docs/images/reliability-lab.png)
+
+## Version 0.4: inspect the failure window
+
+The new **Reliability lab** runs eight isolated multi-process experiments directly from the dashboard. Start a suite, watch durable progress, select a scenario, inspect actual state transitions and provider receipt IDs, compare naive retry with the ledger policy, download JSON evidence, and verify its SHA-256 in your browser. Saved runs survive API restarts.
+
+The runner uses a separate payment-provider process and independent disposable SQLite stores. It cannot access the operator's normal action ledger. Its synthetic fixture approvals apply only to isolated simulated payments. The lab's fault-capable provider is separate from the normal provider service.
+
+Run the same experiments from a terminal:
+
+    pnpm lab --seed 5409 --output evidence.json
+    pnpm evidence:verify evidence.json
+
+The output path must not already exist. A seed reproduces the scenario order and synthetic payloads; real process timings, UUIDs and receipt IDs vary. The report checks observed executions, not every possible interleaving. Its fingerprint detects edits; it is neither an author signature nor a formal proof. An intentionally unsafe baseline reproduces two payments; the guarded unprotected case records one payment and blocks replay. A passed baseline means the hazard was reproduced, not that duplicates are safe.
+
+A separate state-machine suite explores 1,280 seeded commands across protected and unprotected intents, checking approval gates, durable vetoes, cached success, retry limits and external-effect counts. See [lab protocol](docs/RELIABILITY-LAB.md).
+
+### Previous operator workflow
 
 - Real OpenAI Agents SDK function-tool tests with tracing disabled and no model request. The SDK is a pinned development dependency; the app does not load it.
 - Dropped connections, invalid responses, HTTP 500 after commit, real HTTP timeouts, pre-dispatch crashes, late workers, and concurrent recovery tests.

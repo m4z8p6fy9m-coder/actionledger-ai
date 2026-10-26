@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — 2026-10-26
+
+- Add an interactive Reliability lab with eight real multi-process failure experiments, live durable progress and persisted run history.
+- Compare an intentional naive-retry duplicate with the conservative ledger policy.
+- Export schema-validated JSON evidence with provider receipt IDs, assertion results and SHA-256; verify independently in the browser or CLI.
+- Isolate experiment ledgers and a separate fault-capable provider from normal operator actions. Bound concurrency with a SQLite unique index and supervise deadlines/interruption.
+- Add CLI seeded experiments and 1,280-command state-machine invariant exploration.
+- Document evidence/provenance limits and the difference between observed tests and a formal guarantee.
+
 ## 0.3.0 — 2026-10-26
 
 - Test the real pinned OpenAI Agents SDK function tool offline; fix SDK/Zod compatibility and expose immutable-payload failures.
