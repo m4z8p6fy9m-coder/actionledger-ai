@@ -1,3 +1,4 @@
+import { version as appVersion } from "../package.json";
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -47,11 +48,13 @@ import { useLedgerSnapshot } from "./hooks/useLedgerSnapshot";
 import { ActionsPage } from "./pages/ActionsPage";
 import { ApprovalsPage } from "./pages/ApprovalsPage";
 import { ActionsTable } from "./components/ActionsTable";
+import { ReliabilityPage } from "./pages/ReliabilityPage";
 import "./style.css";
 type Page =
   | "Overview"
   | "Actions"
   | "Approvals"
+  | "Reliability lab"
   | "Crash lab"
   | "Audit trail"
   | "Architecture";
@@ -60,6 +63,7 @@ const pages: { label: Page; icon: typeof Activity }[] = [
   { label: "Actions", icon: Workflow },
   { label: "Approvals", icon: ShieldCheck },
   { label: "Crash lab", icon: FlaskConical },
+  { label: "Reliability lab", icon: ShieldCheck },
   { label: "Audit trail", icon: FileClock },
 ];
 function App() {
@@ -322,7 +326,7 @@ function App() {
             </div>
           </div>
           <div className="version">
-            <span>v0.2.0 · Open source</span>
+            <span>v{appVersion} · Open source</span>
             <Shield size={13} />
           </div>
           <p>
@@ -380,26 +384,30 @@ function App() {
               <h1>
                 {page === "Overview"
                   ? "Agent operations"
-                  : page === "Crash lab"
-                    ? "Crash recovery lab"
-                    : page === "Audit trail"
-                      ? "An unbroken trail"
-                      : page === "Architecture"
-                        ? "Built around the failure window"
-                        : page}
+                  : page === "Reliability lab"
+                    ? "Reliability lab"
+                    : page === "Crash lab"
+                      ? "Crash recovery lab"
+                      : page === "Audit trail"
+                        ? "An unbroken trail"
+                        : page === "Architecture"
+                          ? "Built around the failure window"
+                          : page}
               </h1>
               <p>
                 {page === "Overview"
                   ? "A durable record between intent and impact."
-                  : page === "Crash lab"
-                    ? "Break the worker. Keep the evidence. Recover with confidence."
-                    : page === "Actions"
-                      ? "Inspect every intent, decision, attempt, and external outcome."
-                      : page === "Approvals"
-                        ? "Human judgment, durably recorded before execution."
-                        : page === "Audit trail"
-                          ? "Every decision and state transition, in sequence."
-                          : "Local transactions protect the ledger. Provider guarantees protect external effects."}
+                  : page === "Reliability lab"
+                    ? "Run failure experiments. Inspect measured outcomes. Export the evidence."
+                    : page === "Crash lab"
+                      ? "Break the worker. Keep the evidence. Recover with confidence."
+                      : page === "Actions"
+                        ? "Inspect every intent, decision, attempt, and external outcome."
+                        : page === "Approvals"
+                          ? "Human judgment, durably recorded before execution."
+                          : page === "Audit trail"
+                            ? "Every decision and state transition, in sequence."
+                            : "Local transactions protect the ledger. Provider guarantees protect external effects."}
               </p>
             </div>
             <div className="heading-actions">
@@ -636,6 +644,7 @@ function App() {
                   }
                 />
               )}
+              {page === "Reliability lab" && <ReliabilityPage />}
               {page === "Crash lab" && (
                 <>
                   <div className="mode-tabs">
