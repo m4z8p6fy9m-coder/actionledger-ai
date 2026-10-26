@@ -1,6 +1,6 @@
 {
   "name": "@actionledger/web",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,8 @@
   "dependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "lucide-react": "^0.468.0"
+    "lucide-react": "^0.468.0",
+    "@actionledger/core": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.1.0",
