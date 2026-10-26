@@ -85,3 +85,7 @@ The overview snapshot is an operational summary, not the source of truth for ful
 React pages, forms, and display components are separate from the HTTP client and polling hooks. The transport coalesces session bootstrap, bounds request time, handles structured errors, and never retries a mutation automatically. Polling retains the last successful snapshot, cancels superseded reads, avoids overlapping background requests, and pauses when the document is hidden. A rendering error boundary offers a reload path without changing persisted action state.
 
 Offset pagination is deterministic within each request but is not a frozen multi-request snapshot: concurrent inserts can shift later pages. Use the transactional export for a consistent filtered download. SQLite's built-in lower() provides ASCII case-insensitive search, not language-aware Unicode collation.
+
+## Isolated reliability experiments
+
+The operator-only Reliability lab forks a bounded harness with a separate provider process, per-case temporary ledgers and an independent provider store. Its registry/progress live in reliability_runs; normal action/approval tables receive no test writes. A SQLite partial unique index limits one active suite across API processes, a lease/deadline handles interruption, and completed JSON evidence must match persisted per-case progress. Evidence export is schema/fingerprint checked. CLI and dashboard use the same runner. See RELIABILITY-LAB.md for scenario definitions and evidence/provenance boundaries.

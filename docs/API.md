@@ -84,3 +84,7 @@ Responses include X-Request-Id, including authentication and validation failures
 In headless mode, session bootstrap always returns 404 SESSION_DISABLED. A distinct agent token may POST /api/actions, GET /api/actions/:id, or POST /api/actions/:id/execute and /recover. Operator credentials may use every authenticated route. Other agent-token requests return 403 SCOPE_DENIED; missing or invalid credentials return 401 UNAUTHORIZED. Approval still requires the operator credential and a nonempty reviewer/reason. There is no browser credential exchange in this mode.
 
 A human reviews the payload with GET /api/actions/:id using the operator bearer token, then POSTs /api/actions/:id/approval with {"decision":"approve","actor":"Reviewer","reason":"Checked exact payee and amount"}. Use your HTTP client to load the token from the protected secrets file; do not commit tokens or put them in URLs. The agent resumes the existing intent after this explicit decision.
+
+## Reliability lab (0.4)
+
+Operator-only endpoints: POST /api/lab/runs with {"seed":5409} returns 202; GET /api/lab/runs lists the latest 20 retained runs; GET /api/lab/runs/:id returns durable progress; GET /api/lab/runs/:id/evidence returns a validated JSON attachment. 409 LAB_BUSY prevents overlapping suites across API processes sharing a ledger. Incomplete reports return 409 REPORT_INCOMPLETE. All synthetic action/payment data is isolated from the normal ledger. See RELIABILITY-LAB.md for protocol and limits.

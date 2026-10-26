@@ -1,5 +1,17 @@
 # Verification record
 
+## Version 0.4.0 — 26 October 2026
+
+Local pnpm check exited 0: strict TypeScript, zero-warning ESLint, formatting, 95 passing tests across nine files, and production build. The final test run completed in 40.61 seconds. No dependency on a paid API was added; the new workspace dependency shares core evidence types with the dashboard.
+
+Eight new lab integration tests execute the real isolated harness, persistence/restart, deterministic seeded order/payloads, complete coverage, shared-DB concurrency, operator-only access, strict seed validation, deadlines, orderly shutdown, abandoned leases, malformed subprocess evidence, and offline CLI verification of valid/edited reports. Eight state-machine tests execute 1,280 seeded commands and check external-effect/approval invariants.
+
+The CLI lab completed all eight experiments with 36/36 checks for seed 5409. The separate CLI verifier validated its JSON fingerprint and consistency. The compiled dashboard started and exercised its actual Run button, showed 8/8 completed cases and 36/36 checks, displayed naive baseline 2 vs guarded 1 payment, recomputed the fingerprint using Web Crypto, and downloaded an actual JSON evidence file. Reloading restored the saved run. Normal operator totals remained seven actions and five provider payments; lab simulations did not change those records.
+
+The screenshots show the actual compiled interface with persisted synthetic experimental results. The earlier v0.3 CI results below do not establish v0.4 remote status; inspect the new release commit's CI separately.
+
+No real provider, hosted model, OS sandbox, formal proof, trusted attestation or independent audit is claimed. A seed controls order/payloads only. Evidence fingerprints can be recomputed by an editor and are not signatures. Abrupt OS termination may leave synthetic temporary files.
+
 ## Version 0.3.0 — 26 October 2026
 
 Verified locally on Windows with Node.js 24.19.0 and pnpm 11.25.0. pnpm install --frozen-lockfile --offline --config.confirmModulesPurge=false exited 0 with the installed cache. pnpm check exited 0: strict typecheck, zero-warning lint, Prettier, 79 passing tests across seven files, and the complete production build. Tests completed in 25.57 seconds.
