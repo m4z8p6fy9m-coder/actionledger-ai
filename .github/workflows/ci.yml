@@ -24,3 +24,30 @@ jobs:
       - run: pnpm demo:reliability
       - run: pnpm lab --seed 5409 --output laboratory-evidence.json
       - run: pnpm evidence:verify laboratory-evidence.json
+      - run: pnpm faults --seed 5409 --cases 24
+      - run: pnpm faults --target unsafe-baseline --seed 5409 --expect-violation
+  python-regression:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install uv==0.13.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm python:setup
+      - run: pnpm lint:python
+      - run: pnpm test:python
+      - run: pnpm demo:python
