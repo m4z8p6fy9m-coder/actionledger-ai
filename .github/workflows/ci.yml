@@ -22,3 +22,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm demo:reliability
+      - run: pnpm lab --seed 5409 --output laboratory-evidence.json
+      - run: pnpm evidence:verify laboratory-evidence.json
