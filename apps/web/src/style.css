@@ -124,9 +124,15 @@ svg {
   place-items: center;
   background: var(--lime);
   color: #162312;
-  width: 31px;
+  width: 34px;
   height: 34px;
+  flex-shrink: 0;
   border-radius: 8px;
+}
+.brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .ai-tag {
   font-size: 10px;

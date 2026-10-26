@@ -261,7 +261,12 @@ function App() {
           }}
         >
           <span className="brand-mark">
-            <GitBranch size={22} />
+            <img
+              src="/brand/actionledger-mark.svg"
+              width="36"
+              height="36"
+              alt=""
+            />
           </span>
           <span>
             ActionLedger<span className="ai-tag">AI</span>
