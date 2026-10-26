@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/images/actionledger-mark.svg" width="72" height="72" alt="ActionLedger monogram" />
+<img src="docs/images/actionledger-mark.svg?v=2" width="72" height="72" alt="ActionLedger monogram" />
 
 # ActionLedger AI
 
@@ -15,10 +15,6 @@ A local reliability lab for autonomous agent actions.
 [![Node](https://img.shields.io/badge/Node-24%2B-313b34?labelColor=181d19)](https://nodejs.org/)
 
 </div>
-
-<br />
-
-![ActionLedger AI — durable intent, conservative recovery](docs/images/actionledger-header.svg)
 
 An agent executes a payment. The provider commits it. The agent crashes before saving the result. On restart, a retry can charge twice.
 
