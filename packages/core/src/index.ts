@@ -566,3 +566,5 @@ export function validateReceipt(raw: unknown, payment: Payment): Receipt {
 }
 
 export * from "./evidence.js";
+
+export * from "./faults.js";
