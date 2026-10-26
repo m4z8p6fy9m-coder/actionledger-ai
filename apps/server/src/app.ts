@@ -1,3 +1,4 @@
+import { Laboratory } from "./lab.js";
 import Fastify from "fastify";
 import rateLimit from "@fastify/rate-limit";
 import fastifyStatic from "@fastify/static";
@@ -24,6 +25,8 @@ export type ServerConfig = {
   workerPath?: string;
   workerTimeoutMs?: number;
   origins?: string[];
+  labRunnerPath?: string;
+  labDeadlineMs?: number;
 };
 const decisionSchema = z
   .object({
@@ -48,6 +51,11 @@ export async function buildServer(config: ServerConfig) {
       "Scoped agent access requires a distinct 32+ character token and disabled session bootstrap",
     );
   const ledger = new Ledger(config.file);
+  const laboratory = new Laboratory(
+    ledger,
+    config.labRunnerPath,
+    config.labDeadlineMs,
+  );
   const app = Fastify({
     bodyLimit: 8192,
     logger: {
@@ -251,10 +259,25 @@ export async function buildServer(config: ServerConfig) {
     }
     return { action, crashed: false, cached: false };
   };
+  app.get("/api/lab/runs", async () => laboratory.list());
+  app.post("/api/lab/runs", async (request, reply) =>
+    reply.code(202).send(laboratory.start(request.body)),
+  );
+  app.get("/api/lab/runs/:id", async (request) =>
+    laboratory.get(idOf(request.params)),
+  );
+  app.get("/api/lab/runs/:id/evidence", async (request, reply) =>
+    reply
+      .header(
+        "Content-Disposition",
+        'attachment; filename="actionledger-evidence.json"',
+      )
+      .send(laboratory.export(idOf(request.params))),
+  );
   app.get("/api/health", async () => ({
     ok: true,
     service: "ActionLedger AI",
-    version: "0.3.0",
+    version: "0.4.0",
   }));
   app.get("/api/session", async () => ({ token: config.apiToken }));
   app.get("/api/state", async () => {
@@ -352,6 +375,7 @@ export async function buildServer(config: ServerConfig) {
           }),
       ),
     );
+    await laboratory.close();
     ledger.close();
   });
   return { app, ledger, run };
