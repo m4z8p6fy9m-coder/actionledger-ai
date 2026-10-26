@@ -60,4 +60,4 @@ On Windows with Node 24 and Python 3.11.9:
 - Seed 5409, unsafe comparison: 20 generated commands reduced to 4, 26 replay attempts, single-removal minimality verified.
 - Seed 5409, guarded unprotected campaign: 24 cases and 448 commands completed without an observed invariant violation.
 
-The final error-handling hardening was followed by a second successful run of all 11 fault-finder tests and ESLint. Cross-platform CI jobs are configured, but these new changes have not yet been executed on GitHub. These are bounded observations, not a certification.
+The complete release source passed the same checks again locally after the version update. [GitHub Actions run 40355385219](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/runs/40355385219) passed all four jobs: application verification and the actual Python SDK regression on both Windows and Ubuntu, for commit fc70a4f7ae53a710a51c0554587d36f482b101b0. This paragraph is a subsequent documentation update. These are bounded observations, not a certification.
