@@ -2,6 +2,8 @@
 
 **Durable intent. Conservative recovery.**
 
+![ActionLedger AI 3D brand mark and wordmark](images/actionledger-brand.png)
+
 A reproducible, local-first demonstration of safer external actions for autonomous agents. Independent open source; not affiliated with OpenAI or Anthropic.
 
 ## 1. The failure window

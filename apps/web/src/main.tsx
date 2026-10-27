@@ -262,7 +262,7 @@ function App() {
         >
           <span className="brand-mark">
             <img
-              src="/brand/actionledger-mark.svg"
+              src="/brand/actionledger-icon.png"
               width="36"
               height="36"
               alt=""

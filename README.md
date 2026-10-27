@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/images/actionledger-mark.svg?v=2" width="72" height="72" alt="ActionLedger monogram" />
+<img src="docs/images/actionledger-icon.png" width="72" height="72" alt="ActionLedger monogram" />
 
 # ActionLedger AI
 
@@ -8,7 +8,7 @@
 
 An independent, local-first reliability framework for autonomous agent actions.
 
-[Project presentation](docs/PROJECT-PRESENTATION.md) · [Chaos evidence report](docs/evidence/chaos-stresstest-report.md) · [Get started](#quick-start) · [Enterprise architecture](#enterprise-architecture) · [Maintainer brief](docs/MAINTAINER-BRIEF.md) · [Releases](https://github.com/m4z8p6fy9m-coder/actionledger-ai/releases)
+[Project presentation](docs/PROJECT-PRESENTATION.md) · [Logo assets](#brand-assets) · [Chaos evidence report](docs/evidence/chaos-stresstest-report.md) · [Get started](#quick-start) · [Enterprise architecture](#enterprise-architecture) · [Maintainer brief](docs/MAINTAINER-BRIEF.md) · [Releases](https://github.com/m4z8p6fy9m-coder/actionledger-ai/releases)
 
 [![Reliability](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml)
 [![MIT](https://img.shields.io/badge/License-MIT-313b34?labelColor=181d19)](LICENSE)
@@ -168,6 +168,10 @@ flowchart LR
 TypeScript and Node.js · Fastify · React and Vite · Tailwind CSS · SQLite · Zod · Vitest · pnpm monorepo.
 
 The ledger and provider have independent SQLite stores. Atomic transitions and ownership fencing protect local state; provider capabilities determine whether an uncertain external effect can be retried.
+
+## Brand assets
+
+The ActionLedger mark is available as a [transparent icon](docs/images/actionledger-icon.png), a [3D brand render](docs/images/actionledger-brand.png), and an editable [Blender scene](design/actionledger-logo.blend). The design is independent of OpenAI and Anthropic.
 
 ## Development
 
