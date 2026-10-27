@@ -73,6 +73,8 @@ No Docker, cloud service, paid API, or OpenAI key. Initial dependency installati
 
 For an existing agent application, start with the [local REST integration guide](docs/INTEGRATION-QUICKSTART.md). It uses the existing JavaScript adapter and a separate operator approval; no model or hosted API is required. To independently reproduce the crash cases and report results, use the [reproduction checklist](docs/INDEPENDENT-REPRODUCTION.md).
 
+**Help independently test ActionLedger:** If you did not develop this project, please run the crash reproduction on your own machine and [share what happened in a reproduction report](https://github.com/m4z8p6fy9m-coder/actionledger-ai/issues/new?template=independent-reproduction.md). Successful runs, errors, skipped checks, and confusing setup instructions are all useful. No independent validation is claimed until reports are actually received.
+
 ## See the failure. Inspect the recovery.
 
 ![ActionLedger reliability dashboard](docs/images/reliability-lab.png)
