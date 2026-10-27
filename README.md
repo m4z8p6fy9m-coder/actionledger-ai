@@ -20,7 +20,21 @@ An agent executes a payment. The provider commits it. The agent crashes before s
 
 **ActionLedger makes that uncertainty explicit.** It persists business intent and human decisions independently of agent run state, returns recorded success, and blocks unsafe replay.
 
+The primary purpose is a reliability layer for external agent actions: uncertain outcomes must not be blindly repeated. The dashboard and lab demonstrate and test that behavior with simulated payments. The optional runtime and connectors are experimental; this repository is not a production-certified SDK or a published npm package.
+
 Inspired by [OpenAI Agents SDK issue #5409](https://github.com/openai/openai-agents-python/issues/5409). Independent open source; not affiliated with, endorsed by, or maintained by OpenAI.
+
+### Watch the local crash demo
+
+<div align="center">
+
+<a href="docs/videos/actionledger-live-demo-final.mp4"><img src="docs/images/live-demo-preview-final.gif" width="960" alt="Live ActionLedger crash and recovery demo" /></a>
+
+**[Watch the full 4K video with sound](docs/videos/actionledger-live-demo-final.mp4)**
+
+</div>
+
+The animated preview plays silently. This is a recording of the local dashboard operating on a separate simulated provider: a protected action recovers using its original key; an unprotected uncertain action refuses replay. The cursor, sound effects and final safety label are added for presentation. Run `pnpm demo:reliability` to reproduce the crash, or see the [strategy comparison](docs/STRATEGY-COMPARISON.md) and [security review](docs/SECURITY-REVIEW.md) for evidence and limitations.
 
 ## Multi-Agent Defensive Guard: Fencing Agent Race Conditions
 
@@ -56,6 +70,8 @@ pnpm dev
 Open [localhost:5173](http://127.0.0.1:5173). The launcher starts the dashboard, API on port 4310, and separate payment provider on port 4311. Ctrl+C stops the services.
 
 No Docker, cloud service, paid API, or OpenAI key. Initial dependency installation needs registry access; the application and demonstrations then run locally. Restart the launcher after backend or core changes.
+
+For an existing agent application, start with the [local REST integration guide](docs/INTEGRATION-QUICKSTART.md). It uses the existing JavaScript adapter and a separate operator approval; no model or hosted API is required. To independently reproduce the crash cases and report results, use the [reproduction checklist](docs/INDEPENDENT-REPRODUCTION.md).
 
 ## See the failure. Inspect the recovery.
 

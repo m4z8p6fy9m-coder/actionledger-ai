@@ -1,0 +1,569 @@
+{
+  "evidence": {
+    "formatVersion": 1,
+    "suiteVersion": "1",
+    "seed": 5409,
+    "startedAt": "2026-10-27T15:57:18.028Z",
+    "finishedAt": "2026-10-27T15:57:20.391Z",
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "win32",
+      "arch": "x64"
+    },
+    "cases": [
+      {
+        "id": "payload-conflict",
+        "label": "Immutable intent under mutation",
+        "mode": "idempotent",
+        "durationMs": 123,
+        "checks": [
+          {
+            "name": "Changed amount cannot reuse intent key",
+            "expected": "true",
+            "actual": "true",
+            "pass": true
+          },
+          {
+            "name": "Approved amount preserved",
+            "expected": "1000",
+            "actual": "1000",
+            "pass": true
+          },
+          {
+            "name": "One payment",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "Intent durably recorded",
+            "status": "PENDING_APPROVAL",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          },
+          {
+            "phase": "Only the approved immutable payload executes",
+            "status": "SUCCEEDED",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": "pay_02cd485b-9160-4c22-a41e-fb3f6b37d565"
+          }
+        ],
+        "paymentIds": ["pay_02cd485b-9160-4c22-a41e-fb3f6b37d565"],
+        "payload": {
+          "recipient": "Jordan",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.payload-conflict"
+        },
+        "approval": {
+          "decision": "approve",
+          "actor": "Lab fixture (synthetic)"
+        }
+      },
+      {
+        "id": "unprotected-crash",
+        "label": "Crash without provider idempotency",
+        "mode": "unprotected",
+        "durationMs": 381,
+        "checks": [
+          {
+            "name": "Real worker terminates at failpoint",
+            "expected": "86",
+            "actual": "86",
+            "pass": true
+          },
+          {
+            "name": "Crash survives restart as UNKNOWN",
+            "expected": "UNKNOWN",
+            "actual": "UNKNOWN",
+            "pass": true
+          },
+          {
+            "name": "No success receipt fabricated",
+            "expected": "null",
+            "actual": "null",
+            "pass": true
+          },
+          {
+            "name": "Unprotected replay rejected",
+            "expected": "true",
+            "actual": "true",
+            "pass": true
+          },
+          {
+            "name": "Exactly one observed external payment",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          },
+          {
+            "name": "Expected durable final state",
+            "expected": "UNKNOWN",
+            "actual": "UNKNOWN",
+            "pass": true
+          },
+          {
+            "name": "Expected attempt count",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "Intent durably recorded",
+            "status": "PENDING_APPROVAL",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          },
+          {
+            "phase": "Worker exited after external commit",
+            "status": "UNKNOWN",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          },
+          {
+            "phase": "Ledger connection reopened",
+            "status": "UNKNOWN",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          },
+          {
+            "phase": "Unsafe recovery blocked",
+            "status": "UNKNOWN",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          }
+        ],
+        "paymentIds": ["pay_c2bf7fea-4d46-4491-ac54-478992dd5f78"],
+        "payload": {
+          "recipient": "Alice",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.unprotected-crash"
+        },
+        "approval": {
+          "decision": "approve",
+          "actor": "Lab fixture (synthetic)"
+        }
+      },
+      {
+        "id": "concurrent-workers",
+        "label": "Competing real worker processes",
+        "mode": "idempotent",
+        "durationMs": 352,
+        "checks": [
+          {
+            "name": "At least one worker completed",
+            "expected": "true",
+            "actual": "true",
+            "pass": true
+          },
+          {
+            "name": "One admitted attempt",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          },
+          {
+            "name": "One external request",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          },
+          {
+            "name": "One external payment",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "Intent durably recorded",
+            "status": "PENDING_APPROVAL",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          },
+          {
+            "phase": "Two child workers competed for one claim",
+            "status": "SUCCEEDED",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": "pay_c0b3e422-3f76-4d8d-a2fe-51c679bc82f7"
+          }
+        ],
+        "paymentIds": ["pay_c0b3e422-3f76-4d8d-a2fe-51c679bc82f7"],
+        "payload": {
+          "recipient": "Sam",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.concurrent-workers"
+        },
+        "approval": {
+          "decision": "approve",
+          "actor": "Lab fixture (synthetic)"
+        }
+      },
+      {
+        "id": "unsafe-baseline",
+        "label": "Counterexample: naive retry duplicates",
+        "mode": "unprotected",
+        "durationMs": 106,
+        "checks": [
+          {
+            "name": "Counterexample produces two payments",
+            "expected": "2",
+            "actual": "2",
+            "pass": true
+          },
+          {
+            "name": "Both unprotected requests reached the provider",
+            "expected": "2",
+            "actual": "2",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "First external payment, no durable ledger",
+            "status": "BYPASS",
+            "attempts": 0,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          },
+          {
+            "phase": "Naive retry repeats the external effect",
+            "status": "BYPASS",
+            "attempts": 0,
+            "payments": 2,
+            "requests": 2,
+            "receiptId": null
+          }
+        ],
+        "paymentIds": [
+          "pay_0fbf2bc8-9e30-4b72-8382-b76f82d9a2c0",
+          "pay_f4cc2140-082a-4490-afc3-223d710485bd"
+        ],
+        "payload": {
+          "recipient": "Alice",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.unsafe-baseline"
+        },
+        "approval": null
+      },
+      {
+        "id": "protected-crash",
+        "label": "Crash with provider idempotency",
+        "mode": "idempotent",
+        "durationMs": 369,
+        "checks": [
+          {
+            "name": "Real worker terminates at failpoint",
+            "expected": "86",
+            "actual": "86",
+            "pass": true
+          },
+          {
+            "name": "Crash survives restart as UNKNOWN",
+            "expected": "UNKNOWN",
+            "actual": "UNKNOWN",
+            "pass": true
+          },
+          {
+            "name": "No success receipt fabricated",
+            "expected": "null",
+            "actual": "null",
+            "pass": true
+          },
+          {
+            "name": "Exactly one observed external payment",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          },
+          {
+            "name": "Expected durable final state",
+            "expected": "SUCCEEDED",
+            "actual": "SUCCEEDED",
+            "pass": true
+          },
+          {
+            "name": "Expected attempt count",
+            "expected": "2",
+            "actual": "2",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "Intent durably recorded",
+            "status": "PENDING_APPROVAL",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          },
+          {
+            "phase": "Worker exited after external commit",
+            "status": "UNKNOWN",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          },
+          {
+            "phase": "Ledger connection reopened",
+            "status": "UNKNOWN",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          },
+          {
+            "phase": "Explicit protected recovery",
+            "status": "SUCCEEDED",
+            "attempts": 2,
+            "payments": 1,
+            "requests": 2,
+            "receiptId": "pay_df17798b-6420-48d6-bc62-3b429d5bd3e6"
+          }
+        ],
+        "paymentIds": ["pay_df17798b-6420-48d6-bc62-3b429d5bd3e6"],
+        "payload": {
+          "recipient": "Morgan",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.protected-crash"
+        },
+        "approval": {
+          "decision": "approve",
+          "actor": "Lab fixture (synthetic)"
+        }
+      },
+      {
+        "id": "lost-response",
+        "label": "TCP response lost after commit",
+        "mode": "idempotent",
+        "durationMs": 107,
+        "checks": [
+          {
+            "name": "Transport reports an error",
+            "expected": "true",
+            "actual": "true",
+            "pass": true
+          },
+          {
+            "name": "Error preserves uncertainty",
+            "expected": "UNKNOWN",
+            "actual": "UNKNOWN",
+            "pass": true
+          },
+          {
+            "name": "One external effect despite two requests",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          },
+          {
+            "name": "Original key replayed",
+            "expected": "2",
+            "actual": "2",
+            "pass": true
+          },
+          {
+            "name": "Receipt recovered",
+            "expected": "SUCCEEDED",
+            "actual": "SUCCEEDED",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "Intent durably recorded",
+            "status": "PENDING_APPROVAL",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          },
+          {
+            "phase": "Provider committed but no valid response arrived",
+            "status": "UNKNOWN",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          },
+          {
+            "phase": "Recovered with original key after restart",
+            "status": "SUCCEEDED",
+            "attempts": 2,
+            "payments": 1,
+            "requests": 2,
+            "receiptId": "pay_670d6e5f-b343-4e3f-af60-3fbf683f3016"
+          }
+        ],
+        "paymentIds": ["pay_670d6e5f-b343-4e3f-af60-3fbf683f3016"],
+        "payload": {
+          "recipient": "Alice",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.lost-response"
+        },
+        "approval": {
+          "decision": "approve",
+          "actor": "Lab fixture (synthetic)"
+        }
+      },
+      {
+        "id": "approval-gate",
+        "label": "Durable human veto",
+        "mode": "idempotent",
+        "durationMs": 76,
+        "checks": [
+          {
+            "name": "Unapproved execution refused",
+            "expected": "true",
+            "actual": "true",
+            "pass": true
+          },
+          {
+            "name": "Rejection survives restart",
+            "expected": "true",
+            "actual": "true",
+            "pass": true
+          },
+          {
+            "name": "No external request",
+            "expected": "0",
+            "actual": "0",
+            "pass": true
+          },
+          {
+            "name": "No external payment",
+            "expected": "0",
+            "actual": "0",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "Intent durably recorded",
+            "status": "PENDING_APPROVAL",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          },
+          {
+            "phase": "Durable rejection blocks dispatch",
+            "status": "REJECTED",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          }
+        ],
+        "paymentIds": [],
+        "payload": {
+          "recipient": "Sam",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.approval-gate"
+        },
+        "approval": {
+          "decision": "reject",
+          "actor": "Lab fixture (synthetic)"
+        }
+      },
+      {
+        "id": "provider-error",
+        "label": "HTTP 500 after provider commit",
+        "mode": "idempotent",
+        "durationMs": 93,
+        "checks": [
+          {
+            "name": "Transport reports an error",
+            "expected": "true",
+            "actual": "true",
+            "pass": true
+          },
+          {
+            "name": "Error preserves uncertainty",
+            "expected": "UNKNOWN",
+            "actual": "UNKNOWN",
+            "pass": true
+          },
+          {
+            "name": "One external effect despite two requests",
+            "expected": "1",
+            "actual": "1",
+            "pass": true
+          },
+          {
+            "name": "Original key replayed",
+            "expected": "2",
+            "actual": "2",
+            "pass": true
+          },
+          {
+            "name": "Receipt recovered",
+            "expected": "SUCCEEDED",
+            "actual": "SUCCEEDED",
+            "pass": true
+          }
+        ],
+        "trace": [
+          {
+            "phase": "Intent durably recorded",
+            "status": "PENDING_APPROVAL",
+            "attempts": 0,
+            "payments": 0,
+            "requests": 0,
+            "receiptId": null
+          },
+          {
+            "phase": "Provider committed but no valid response arrived",
+            "status": "UNKNOWN",
+            "attempts": 1,
+            "payments": 1,
+            "requests": 1,
+            "receiptId": null
+          },
+          {
+            "phase": "Recovered with original key after restart",
+            "status": "SUCCEEDED",
+            "attempts": 2,
+            "payments": 1,
+            "requests": 2,
+            "receiptId": "pay_f11878d7-4af8-4212-b87b-2e3362641a67"
+          }
+        ],
+        "paymentIds": ["pay_f11878d7-4af8-4212-b87b-2e3362641a67"],
+        "payload": {
+          "recipient": "Sam",
+          "amountCents": 1000,
+          "idempotencyKey": "lab.5409.provider-error"
+        },
+        "approval": {
+          "decision": "approve",
+          "actor": "Lab fixture (synthetic)"
+        }
+      }
+    ]
+  },
+  "sha256": "18dedfbfd820f30847e95b28fc85e16e2076561eaf533fd5db2e2318ff83c1a1"
+}
