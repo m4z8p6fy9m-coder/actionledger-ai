@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/images/actionledger-icon.png" width="72" height="72" alt="ActionLedger monogram" />
+<img src="docs/images/actionledger-header.svg" width="1000" alt="ActionLedger AI — durable intent, conservative recovery" />
 
 # ActionLedger AI
 
@@ -11,6 +11,8 @@ Local-first AI agent reliability: crash recovery, idempotency, and human-in-the-
 [![Reliability](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/m4z8p6fy9m-coder/actionledger-ai/actions/workflows/ci.yml)
 [![MIT](https://img.shields.io/badge/License-MIT-313b34?labelColor=181d19)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-24%2B-313b34?labelColor=181d19)](https://nodejs.org/)
+
+[Quick start](#quick-start) · [Try the crash](#try-the-crash) · [Integrate](docs/INTEGRATION-QUICKSTART.md) · [Evidence](docs/VERIFICATION.md) · [Contribute](CONTRIBUTING.md)
 
 </div>
 
@@ -28,16 +30,73 @@ The dashboard and reliability lab use simulated payments. The separate MCP/runti
 
 The preview plays silently. The recording uses the local dashboard and a separate simulated provider; the cursor, sound and final safety label are presentation overlays.
 
-```text
-Intent + human approval → provider commits → worker crashes before checkpoint
-                                             ↓
-                                      ledger: UNKNOWN
-                          ┌──────────────────┴────────────────────┐
-              provider enforces key                    no idempotency
-              explicit same-key recovery               replay blocked; inspect evidence
-```
+![Recovery flow: approved intent, simulated provider effect, crash before checkpoint, UNKNOWN, then explicit same-key recovery or blocked replay](docs/images/recovery-flow.svg)
 
 No local database transaction can guarantee exactly-once external execution. A missing result or a timeout does not prove that the provider did nothing.
+
+## Explore the failure window
+
+Choose a scenario and reveal the outcome. These are explanations of the local
+demo's recovery contract, not a live simulation; run the demo below to observe
+the ledger and simulated provider yourself.
+
+<details>
+<summary><strong>01 · The provider committed, but the worker crashed. What does the ledger know?</strong></summary>
+
+The ledger has no confirmed result, so the action remains **`UNKNOWN`**. A
+timeout or missing checkpoint alone cannot tell us whether the provider acted.
+Inspect the provider's evidence before deciding what is safe to do next.
+
+</details>
+
+<details>
+<summary><strong>02 · The simulated provider enforces the original idempotency key. What happens on recovery?</strong></summary>
+
+The local demo permits an **explicit** recovery with the same key. In the
+reproducible crash experiment, the simulated provider returns the existing
+payment and the ledger records **`SUCCEEDED`**: two attempts, one simulated
+payment. Real provider contracts, key scopes and retention periods may differ.
+
+</details>
+
+<details>
+<summary><strong>03 · The provider cannot deduplicate. Can the action be retried?</strong></summary>
+
+No automatic or operator-requested replay is permitted by the local demo for
+an unprotected **`UNKNOWN`** action. Investigate the external outcome; an
+absent receipt is not proof that no effect occurred. The experimental runtime
+has its own separate ledger and reconciliation policy.
+
+</details>
+
+### Make the recovery decision
+
+A provider may have completed an action, but its response is lost. The action is
+`UNKNOWN` and the provider does **not** enforce an idempotency key. Choose what
+you would do; open an option to see how the local demo treats it.
+
+<details>
+<summary><strong>A · Send the payment again because the response timed out</strong></summary>
+
+**Unsafe.** A timeout does not mean the provider did nothing. Another dispatch
+could create a second payment. ActionLedger blocks replay for an unprotected
+`UNKNOWN` action, including an operator-requested replay.
+
+</details>
+
+<details>
+<summary><strong>B · Stop and investigate the provider's records</strong></summary>
+
+**The conservative choice.** Keep the action `UNKNOWN` and inspect the external
+records. A missing receipt alone is not proof that no effect occurred. In this
+local demo there is no force-retry or manual resolution endpoint for an
+unprotected `UNKNOWN`.
+
+</details>
+
+This is a static decision exercise, not a running payment. [Run the actual
+local crash experiment](#try-the-crash) to inspect the ledger and simulated
+provider yourself.
 
 ## Quick start
 
@@ -50,11 +109,38 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open [localhost:5173](http://127.0.0.1:5173). The launcher starts the dashboard, API on port 4310, and separate simulated provider on port 4311; stop them with Ctrl+C. It persists local records in `data/`, including credentials; do not share that directory. For a disposable, assertion-backed crash reproduction without the UI, run `pnpm demo:reliability`.
+Open [localhost:5173](http://127.0.0.1:5173). The launcher starts the dashboard, API on port 4310, and separate simulated provider on port 4311; stop them with Ctrl+C. It persists local records in `data/`, including credentials; do not share that directory.
 
-In **Crash lab**, create a €10 scenario, review and approve it, then select **Execute & crash**. With provider idempotency, **Recover action** uses the original key. In **No provider idempotency** mode, recovery refuses replay and keeps `UNKNOWN`. Every payment is simulated.
+## Try the crash
 
-For a concise walkthrough, integration example and reproducible strategy comparison, see the [two-minute developer tour](docs/DEVELOPER-DEMO.md).
+In **Crash lab**, create a €10 scenario, review and approve it, then select **Execute & crash**. The ledger shows `UNKNOWN` after the simulated provider commits. Choose **Recover action** to see what the provider policy permits:
+
+| Simulated provider policy | Outcome after recovery                                                         |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| Idempotency enabled       | Explicit recovery reuses the original key; one simulated payment, `SUCCEEDED`. |
+| No idempotency            | Replay is blocked; the action remains `UNKNOWN` for investigation.             |
+
+Every payment in this demo is simulated. To run the same crash and restart as an assertion-backed command without the dashboard:
+
+```sh
+pnpm demo:reliability
+```
+
+The script uses isolated temporary stores and reports attempts, simulated payments and final ledger states. See the [two-minute developer tour](docs/DEVELOPER-DEMO.md) for the scenario, comparison and limits, or the [launch and reproduction brief](docs/LAUNCH-PRESENTATION.md) to share the experiment.
+
+## Connect an agent
+
+The repository's local JavaScript adapter keeps the intent and credential under host control:
+
+```js
+import { makeLedgerPayment } from "./ledger-client.mjs";
+
+// Persist the intent ID in the host before invoking the agent, and reuse it on resume.
+const pay = makeLedgerPayment({ token, intentId });
+const result = await pay({ recipient: "Demo recipient", amountCents: 1000 });
+```
+
+The first call requests a separate human approval; resume with the same intent and payload after approval. The example uses the local simulated provider. Follow the [integration quickstart](docs/INTEGRATION-QUICKSTART.md) for credentials and a runnable example, or see the [OpenAI Agents SDK wrapper](examples/openai-agents-sdk/README.md). The adapter is experimental and is not a published npm package.
 
 ## What is implemented
 

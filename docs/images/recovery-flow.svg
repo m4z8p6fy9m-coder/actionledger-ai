@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="title desc">
+  <title id="title">A cautious recovery path</title>
+  <desc id="desc">A human approves an intent, a simulated provider commits, and a worker crashes before checkpointing. The ledger records UNKNOWN, followed by explicit same-key recovery only if provider idempotency is available; otherwise replay is blocked.</desc>
+  <rect width="1200" height="300" rx="18" fill="#151b17"/>
+  <rect x="1" y="1" width="1198" height="298" rx="17" fill="none" stroke="#35483b"/>
+  <text x="40" y="45" fill="#aabbb0" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" letter-spacing="2">THE CRASH WINDOW · SIMULATED PAYMENT</text>
+  <g font-family="Arial,Helvetica,sans-serif">
+    <rect x="40" y="75" width="238" height="94" rx="10" fill="#202a23" stroke="#42564a"/>
+    <text x="60" y="105" fill="#91a697" font-size="12" font-weight="700">01 · LEDGER</text>
+    <text x="60" y="137" fill="#f0f4ee" font-size="20" font-weight="700">Intent approved</text>
+    <path d="M278 122h28m-8-7 8 7-8 7" fill="none" stroke="#91a697" stroke-width="2"/>
+    <rect x="310" y="75" width="238" height="94" rx="10" fill="#202a23" stroke="#42564a"/>
+    <text x="330" y="105" fill="#91a697" font-size="12" font-weight="700">02 · PROVIDER</text>
+    <text x="330" y="137" fill="#f0f4ee" font-size="20" font-weight="700">Effect committed</text>
+    <path d="M548 122h28m-8-7 8 7-8 7" fill="none" stroke="#91a697" stroke-width="2"/>
+    <rect x="580" y="75" width="238" height="94" rx="10" fill="#302923" stroke="#775c49"/>
+    <text x="600" y="105" fill="#d6b69a" font-size="12" font-weight="700">03 · WORKER</text>
+    <text x="600" y="137" fill="#f7e9de" font-size="20" font-weight="700">Crash before save</text>
+    <path d="M818 122h28m-8-7 8 7-8 7" fill="none" stroke="#91a697" stroke-width="2"/>
+    <rect x="850" y="75" width="310" height="94" rx="10" fill="#302923" stroke="#775c49"/>
+    <text x="870" y="105" fill="#d6b69a" font-size="12" font-weight="700">04 · LEDGER</text>
+    <text x="870" y="137" fill="#f7e9de" font-size="20" font-weight="700">UNKNOWN</text>
+    <path d="M1005 169v28" stroke="#91a697" stroke-width="2"/>
+    <rect x="40" y="208" width="1120" height="58" rx="9" fill="#202a23" stroke="#42564a"/>
+    <text x="60" y="243" fill="#d6e5d7" font-size="16">Provider enforces key: explicit recovery</text>
+    <text x="633" y="243" fill="#d6b69a" font-size="16">No idempotency: replay blocked</text>
+  </g>
+</svg>
