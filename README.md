@@ -54,6 +54,8 @@ Open [localhost:5173](http://127.0.0.1:5173). The launcher starts the dashboard,
 
 In **Crash lab**, create a €10 scenario, review and approve it, then select **Execute & crash**. With provider idempotency, **Recover action** uses the original key. In **No provider idempotency** mode, recovery refuses replay and keeps `UNKNOWN`. Every payment is simulated.
 
+For a concise walkthrough, integration example and reproducible strategy comparison, see the [two-minute developer tour](docs/DEVELOPER-DEMO.md).
+
 ## What is implemented
 
 - **Durable intent and approvals:** persist immutable action identity, a human decision, attempts and audit records.
