@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Clarify the crash-recovery quickstart, experimental runtime boundary, historical evidence and the upstream SDK documentation update; add contributor report templates.
 - Add signed causal fingerprints, persistent provider-key mappings, MCP mutation freezes and a conservative generic REST connector.
 - Add an opt-in local PostgreSQL and mock-Stripe fault-injection stress script.
 

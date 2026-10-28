@@ -1,6 +1,6 @@
 # Local integration quickstart
 
-This is an experimental, repository-based integration for the simulated payment service. There is no published ActionLedger npm package and no stable public API compatibility promise yet. It uses the existing JavaScript adapter; it does not require an AI provider or API key. Node.js 24+ and pnpm 11.25.0 are required.
+This is an experimental, repository-based integration for the simulated payment service. The workspace packages are private and this repository does not provide an npm installation path or a stable public API compatibility promise. It uses the existing JavaScript adapter; it does not require an AI provider or API key. Node.js 24+ and pnpm 11.25.0 are required.
 
 ## 1. Start the local services
 

@@ -48,16 +48,16 @@ The script creates disposable local fixtures and shows two separate host process
 
 For the dashboard crash gap, run `pnpm dev`, open `http://127.0.0.1:5173`, and use **Crash lab**. With provider idempotency, recovery records one simulated payment. Without it, uncertainty remains `UNKNOWN` and replay is blocked.
 
-## 5. Evidence from local runs
+## 5. Historical evidence from local runs
 
-| Experiment                             | Observation                                                                                           |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Full TypeScript verification           | 146 tests passed, 1 PostgreSQL-specific test skipped in the default run; PostgreSQL passed separately |
-| Mock Stripe and local PostgreSQL chaos | 24 actions, 24 POSTs, 24 simulated payments, 24 UNKNOWN outcomes                                      |
-| Multi-agent contention                 | One lock owner for the same host-defined group in local SQLite/PostgreSQL tests                       |
-| Python regression                      | 13 unit tests and five offline SDK scenarios passed in a prior local run                              |
+| Experiment                             | Observation                                                                                                                             |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Full TypeScript verification           | 146 tests passed, 1 PostgreSQL-specific test skipped in a 27 October 2026 local run; PostgreSQL had passed separately in an earlier run |
+| Mock Stripe and local PostgreSQL chaos | 24 actions, 24 POSTs, 24 simulated payments, 24 UNKNOWN outcomes                                                                        |
+| Multi-agent contention                 | One lock owner for the same host-defined group in local SQLite/PostgreSQL tests                                                         |
+| Python regression                      | 13 unit tests and five offline SDK scenarios passed in a prior local run                                                                |
 
-See the [chaos report](evidence/chaos-stresstest-report.md) and [multi-agent evidence and benchmark](MULTI-AGENT-EVIDENCE.md). These are bounded local observations, not formal proofs or a production certification.
+These are historical observations; the exact local commits for these presentation counts were not recorded. See the [verification record](VERIFICATION.md) for dated runs, the [chaos report](evidence/chaos-stresstest-report.md) and [multi-agent evidence and benchmark](MULTI-AGENT-EVIDENCE.md). These are bounded local observations, not formal proofs or a production certification.
 
 ## 6. What the multi-agent guard does — and does not do
 

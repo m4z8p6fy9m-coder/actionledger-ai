@@ -57,7 +57,7 @@ PowerShell: set the same variables using `$env:NAME='value'` before each command
 
 On 2026-10-26, the isolated SQLite demo and PostgreSQL demo passed. Two separate host processes concurrently contended for the same intent in both adapters; the PostgreSQL run also raced two distinct intents through independent pools. The PostgreSQL integration test passed separately against a disposable PostgreSQL 18.4 instance. The local mock-Stripe chaos run reported 24 actions, 24 POSTs, 24 simulated payments and 24 UNKNOWN outcomes.
 
-A local `pnpm check` run passed 143 tests and skipped the PostgreSQL-specific test because `TEST_DATABASE_URL` was not configured in that run; its standalone run is noted above. Python Ruff, strict mypy and 13 unit tests passed, as did five offline Python SDK scenarios. These observations apply to this workspace and do not establish that remote CI or any external deployment has run the new code.
+The 26 October 2026 local `pnpm check` run reported 143 tests and skipped the PostgreSQL-specific test because `TEST_DATABASE_URL` was not configured in that run; its standalone run is noted above. Python Ruff, strict mypy and 13 unit tests passed, as did five offline Python SDK scenarios. The exact local commit was not recorded; these are historical observations, not current suite totals. See the [verification record](VERIFICATION.md) for separately dated runs.
 
 ## Guard microbenchmark
 

@@ -1,6 +1,6 @@
 # Maintainer brief: external tool effects across an agent checkpoint gap
 
-ActionLedger AI is independent of OpenAI. This is a reproducible integration experiment for the failure window discussed in [Agents Python issue #5409](https://github.com/openai/openai-agents-python/issues/5409), not a claim of a new SDK vulnerability or a proposed mandatory SDK dependency.
+ActionLedger AI is independent of OpenAI. This is a reproducible integration experiment for the failure window discussed in [Agents Python issue #5409](https://github.com/openai/openai-agents-python/issues/5409). The issue was closed after [PR #5424](https://github.com/openai/openai-agents-python/pull/5424) added recovery guidance to the SDK documentation; the PR did not change runtime behavior. This project is not a claim of a new SDK vulnerability or a proposed mandatory SDK dependency.
 
 ## What to inspect
 
@@ -49,9 +49,9 @@ Local database transactions do not atomically commit an external payment. Duplic
 
 The optional adapter is a focused example, not a general Python client. The fixtures cover non-streamed single-tool runs and synthetic EUR payments. They do not certify real payment processors, malicious-model isolation, distributed consensus, or all possible schedules. No claim is made that these techniques are novel. Nothing has been submitted to OpenAI by this change.
 
-## Observed local verification
+## Historical v0.5.0 verification — 26 October 2026
 
-On Windows with Node 24 and Python 3.11.9:
+For the v0.5.0 release (tag `7a13ac57c27a4aa78567a198d352977732b488fc`), the earlier local report recorded the following on Windows with Node 24 and Python 3.11.9. The earlier local test run's exact commit was not recorded; these counts are not current suite totals:
 
 - pnpm check: 106 tests across 10 files passed; TypeScript, ESLint, Prettier, and production build passed.
 - pnpm test:python: 7 adapter tests passed.
