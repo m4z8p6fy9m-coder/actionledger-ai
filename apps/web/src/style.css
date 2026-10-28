@@ -730,7 +730,7 @@ tbody tr:hover {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 9px;
+  font-size: 11px;
   color: #a1b293;
 }
 .policy.exposed {
@@ -744,7 +744,7 @@ tbody tr:hover {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 8px;
+  font-size: 11px;
   padding: 5px 7px;
   border-radius: 4px;
   white-space: nowrap;
@@ -1401,6 +1401,17 @@ dialog::backdrop {
   letter-spacing: -0.3px;
   font-weight: 550;
 }
+.modal-error {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #a87551;
+  border-radius: 6px;
+  background: #38271f;
+  color: #f2d5bf;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 form,
 .detail-body {
   padding: 23px 24px;
@@ -1959,7 +1970,8 @@ dd {
   font-size: 12px;
 }
 .metric p {
-  font-size: 10px;
+  font-size: 12px;
+  color: #afc1b2;
   line-height: 1.7;
 }
 .panel-heading h2 {
@@ -1986,10 +1998,10 @@ td {
   max-width: 215px;
 }
 .badge {
-  font-size: 10px;
+  font-size: 11px;
 }
 .policy {
-  font-size: 10px;
+  font-size: 11px;
 }
 .button {
   font-size: 12px;

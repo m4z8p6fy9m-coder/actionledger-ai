@@ -59,6 +59,13 @@ export function Modal({
     </dialog>
   );
 }
+export function ModalError({ message }: { message?: string }) {
+  return message ? (
+    <div className="modal-error" role="alert">
+      {message}
+    </div>
+  ) : null;
+}
 export function Metric({
   label,
   value,

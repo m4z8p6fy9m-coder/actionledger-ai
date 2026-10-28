@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { version as appVersion } from "../package.json";
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -41,7 +42,20 @@ import {
   type Detail,
   type Status,
 } from "./api";
-import { Badge, Empty, Modal, Metric, LabStep } from "./components/ui";
+import {
+  Badge,
+  Empty,
+  Modal,
+  ModalError,
+  Metric,
+  LabStep,
+} from "./components/ui";
+import {
+  executionMessage,
+  readDetailAfterMutation,
+  recentProviderEvidence,
+  type ExecutionResult,
+} from "./lib/presentation";
 import { CreateModal, ApprovalModal } from "./components/ActionForms";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useLedgerSnapshot } from "./hooks/useLedgerSnapshot";
@@ -111,30 +125,39 @@ function App() {
   });
   const [demoFallback, setDemoFallback] = useState<Action | null>(null);
   useEffect(() => {
-    if (!toast) return;
+    if (!toast || toast.error) return;
     const id = setTimeout(() => setToast(null), 6500);
     return () => clearTimeout(id);
   }, [toast]);
   const work = async <T,>(
     fn: () => Promise<T>,
-    message?: string,
+    message?: string | ((result: T) => string),
   ): Promise<T | undefined> => {
     if (busyRef.current) return undefined;
     busyRef.current = true;
     setBusy(true);
+    setToast(null);
     try {
       const result = await fn();
-      if (message) setToast({ text: message, error: false });
+      if (message)
+        setToast({
+          text: typeof message === "function" ? message(result) : message,
+          error: false,
+        });
       await refresh();
       return result;
     } catch (e) {
+      const errorMessage =
+        e instanceof ApiError && e.code === "UNSAFE_RETRY"
+          ? "Replay is blocked for this uncertain action. Inspect the provider's records before any further action."
+          : e instanceof Error
+            ? e.message
+            : "Operation failed";
       setToast({
         text:
           e instanceof ApiError && e.requestId
-            ? e.message + " · Reference: " + e.requestId
-            : e instanceof Error
-              ? e.message
-              : "Operation failed",
+            ? errorMessage + " · Reference: " + e.requestId
+            : errorMessage,
         error: true,
       });
       await refresh();
@@ -149,6 +172,26 @@ function App() {
       setDetail(await api<Detail>("/actions/" + id));
     });
   };
+  const refreshDetailAfterMutation = async (id: string) => {
+    try {
+      setDetail(
+        await readDetailAfterMutation(() => api<Detail>("/actions/" + id)),
+      );
+    } catch (error) {
+      // Do not leave stale action controls visible after the mutation succeeded.
+      setDetail(null);
+      setApproval(null);
+      throw error;
+    }
+  };
+  const openCreate = () => {
+    setToast(null);
+    setCreate(true);
+  };
+  const openApproval = (action: Action, decision: "approve" | "reject") => {
+    setToast(null);
+    setApproval({ action, decision });
+  };
   const count = (status: Status) =>
     Number(data?.counts.find((c) => c.status === status)?.count ?? 0);
   const total = data?.counts.reduce((s, c) => s + Number(c.count), 0) ?? 0;
@@ -160,6 +203,7 @@ function App() {
   const demo =
     data?.actions.find((a) => a.id === demoIds[mode]) ??
     (demoFallback?.id === demoIds[mode] ? demoFallback : null);
+  const providerEvidence = recentProviderEvidence(data?.provider ?? null, demo);
   useEffect(() => {
     const id = demoIds[mode];
     if (id)
@@ -189,31 +233,35 @@ function App() {
   const execute = (action: Action, crash = false) =>
     work(
       async () => {
-        const result = await api<{ action: Action; crashed: boolean }>(
+        const result = await api<ExecutionResult>(
           "/actions/" + action.id + "/execute",
           { simulateCrash: crash },
         );
         if (detail?.action.id === action.id)
-          setDetail(await api<Detail>("/actions/" + action.id));
+          await refreshDetailAfterMutation(action.id);
         return result;
       },
-      crash
-        ? "Worker exited after provider commit. Ledger outcome is UNKNOWN."
-        : "Payment execution completed.",
+      (result) => executionMessage(result, false),
     );
   const recover = (action: Action) =>
-    work(async () => {
-      const result = await api("/actions/" + action.id + "/recover", {});
-      if (detail?.action.id === action.id)
-        setDetail(await api<Detail>("/actions/" + action.id));
-      return result;
-    }, "Recovery completed using the original provider key.");
+    work(
+      async () => {
+        const result = await api<ExecutionResult>(
+          "/actions/" + action.id + "/recover",
+          {},
+        );
+        if (detail?.action.id === action.id)
+          await refreshDetailAfterMutation(action.id);
+        return result;
+      },
+      (result) => executionMessage(result, true),
+    );
   const table = (compact = false) => (
     <ActionsTable
       items={(data?.actions ?? []).slice(0, compact ? 6 : 200)}
       busy={busy}
       onInspect={(id) => void openDetail(id)}
-      onCreate={() => setCreate(true)}
+      onCreate={openCreate}
     />
   );
   const activity = (events: Audit[]) =>
@@ -288,6 +336,7 @@ function App() {
             <button
               key={label}
               aria-label={label}
+              aria-current={page === label ? "page" : undefined}
               className={page === label ? "active" : ""}
               onClick={() => navigate(label)}
             >
@@ -305,6 +354,7 @@ function App() {
         <nav>
           <button
             aria-label="Architecture"
+            aria-current={page === "Architecture" ? "page" : undefined}
             className={page === "Architecture" ? "active" : ""}
             onClick={() => navigate("Architecture")}
           >
@@ -370,7 +420,7 @@ function App() {
               className="icon-button"
               aria-label="Refresh data"
               disabled={busy || refreshing}
-              onClick={() => void work(refresh, "Ledger refreshed")}
+              onClick={() => void refresh()}
             >
               <RefreshCw
                 size={15}
@@ -431,7 +481,7 @@ function App() {
               )}
               <button
                 className="button primary"
-                onClick={() => setCreate(true)}
+                onClick={openCreate}
                 disabled={busy}
               >
                 <Plus size={16} />
@@ -493,7 +543,7 @@ function App() {
                     footer="Every payment needs a human decision"
                   />
                   <Metric
-                    label="External payments"
+                    label="Simulated payments"
                     value={String(data.provider?.paymentCount ?? "—")}
                     icon={ArrowUpRight}
                     footer={
@@ -636,7 +686,7 @@ function App() {
                   counts={data.counts}
                   busy={busy}
                   onInspect={(id) => void openDetail(id)}
-                  onCreate={() => setCreate(true)}
+                  onCreate={openCreate}
                   onNotice={(text, error = false) => setToast({ text, error })}
                 />
               )}
@@ -644,9 +694,7 @@ function App() {
                 <ApprovalsPage
                   revision={lastUpdated}
                   busy={busy}
-                  onReview={(action, decision) =>
-                    setApproval({ action, decision })
-                  }
+                  onReview={openApproval}
                 />
               )}
               {page === "Reliability lab" && <ReliabilityPage />}
@@ -720,8 +768,7 @@ function App() {
                               demo.status !== "PENDING_APPROVAL"
                             }
                             onClick={() =>
-                              demo &&
-                              setApproval({ action: demo, decision: "approve" })
+                              demo && openApproval(demo, "approve")
                             }
                           >
                             Review & approve
@@ -795,16 +842,12 @@ function App() {
                             )}
                           </div>
                           <div className="evidence-number">
-                            <span>Recent provider receipts for this key</span>
+                            <span>
+                              Matching receipts among the latest 200 simulated
+                              payments
+                            </span>
                             <strong>
-                              {demo && data.provider
-                                ? data.provider.payments.filter(
-                                    (p) =>
-                                      p.logicalKey === demo.idempotency_key,
-                                  ).length
-                                : data.provider
-                                  ? 0
-                                  : "—"}
+                              {providerEvidence.count ?? "—"}
                               <small>× €10</small>
                             </strong>
                           </div>
@@ -849,7 +892,7 @@ function App() {
                   </div>
                   <section className="panel">
                     <div className="panel-heading">
-                      <h2>Provider receipts</h2>
+                      <h2>Recent simulated provider receipts</h2>
                       <span className="muted small">
                         Independent provider.sqlite
                       </span>
@@ -876,7 +919,7 @@ function App() {
                       (p) => demo && p.logicalKey === demo.idempotency_key,
                     ) && (
                       <div className="quiet-empty">
-                        No provider receipt for this scenario yet.
+                        {providerEvidence.empty}
                       </div>
                     )}
                   </section>
@@ -1084,7 +1127,11 @@ function App() {
       {create && (
         <CreateModal
           busy={busy}
-          onClose={() => setCreate(false)}
+          error={toast?.error ? toast.text : undefined}
+          onClose={() => {
+            setCreate(false);
+            setToast(null);
+          }}
           onSubmit={(body) =>
             void work(async () => {
               const result = await api<{ action: Action; duplicate: boolean }>(
@@ -1108,7 +1155,11 @@ function App() {
           action={approval.action}
           decision={approval.decision}
           busy={busy}
-          onClose={() => setApproval(null)}
+          error={toast?.error ? toast.text : undefined}
+          onClose={() => {
+            setApproval(null);
+            setToast(null);
+          }}
           onSubmit={(actor, reason) =>
             void work(
               async () => {
@@ -1118,21 +1169,26 @@ function App() {
                   reason,
                 });
                 if (detail?.action.id === approval.action.id)
-                  setDetail(
-                    await api<Detail>("/actions/" + approval.action.id),
-                  );
+                  await refreshDetailAfterMutation(approval.action.id);
                 setApproval(null);
               },
               approval.decision === "approve"
-                ? "Approval persisted. Payment is ready for execution."
+                ? "Approval decision recorded. Check the action status before execution."
                 : "Rejection persisted. Execution is blocked.",
             )
           }
         />
       )}
       {detail && (
-        <Modal title="Action inspector" onClose={() => setDetail(null)}>
+        <Modal
+          title="Action inspector"
+          onClose={() => {
+            setDetail(null);
+            setToast(null);
+          }}
+        >
           <div className="detail-body">
+            <ModalError message={toast?.error ? toast.text : undefined} />
             <div className="detail-title">
               <h2>
                 {money(payload(detail.action).amountCents)} to{" "}
@@ -1196,21 +1252,14 @@ function App() {
                   <button
                     className="button secondary"
                     disabled={busy}
-                    onClick={() =>
-                      setApproval({ action: detail.action, decision: "reject" })
-                    }
+                    onClick={() => openApproval(detail.action, "reject")}
                   >
                     Reject
                   </button>
                   <button
                     className="button primary"
                     disabled={busy}
-                    onClick={() =>
-                      setApproval({
-                        action: detail.action,
-                        decision: "approve",
-                      })
-                    }
+                    onClick={() => openApproval(detail.action, "approve")}
                   >
                     Review & approve
                   </button>
@@ -1249,10 +1298,12 @@ function App() {
     </div>
   );
 }
-createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+root.render(
   <React.StrictMode>
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
   </React.StrictMode>,
 );
+if (import.meta.hot) import.meta.hot.dispose(() => root.unmount());

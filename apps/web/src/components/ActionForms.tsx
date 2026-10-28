@@ -7,13 +7,15 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { money, payload, type Action } from "../api";
-import { Modal } from "./ui";
+import { Modal, ModalError } from "./ui";
 export function CreateModal({
   busy,
+  error,
   onClose,
   onSubmit,
 }: {
   busy: boolean;
+  error?: string;
   onClose: () => void;
   onSubmit: (body: unknown) => void;
 }) {
@@ -35,6 +37,7 @@ export function CreateModal({
           });
         }}
       >
+        <ModalError message={error} />
         <p className="form-intro">
           Record the intent first. A separate human decision is required before
           any payment can execute.
@@ -124,12 +127,14 @@ export function ApprovalModal({
   action,
   decision,
   busy,
+  error,
   onClose,
   onSubmit,
 }: {
   action: Action;
   decision: "approve" | "reject";
   busy: boolean;
+  error?: string;
   onClose: () => void;
   onSubmit: (actor: string, reason: string) => void;
 }) {
@@ -148,6 +153,7 @@ export function ApprovalModal({
           onSubmit(String(f.get("actor")), String(f.get("reason")));
         }}
       >
+        <ModalError message={error} />
         <div className="review-amount">
           {money(p.amountCents)}
           <span>to {p.recipient}</span>
